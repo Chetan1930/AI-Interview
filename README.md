@@ -2,7 +2,6 @@
 
 AI-powered interview preparation, mock interview practice, and resume analysis built with Next.js.
 
-[![Open in Bolt](https://bolt.new/static/open-in-bolt.svg)](https://bolt.new/~/sb1-jzdqpcr9)
 
 ## Overview
 
@@ -153,4 +152,4 @@ For production, make sure the Gemini API key is configured in your hosting envir
 
 ## License
 
-This project does not currently define a license. Add one before distributing or open-sourcing it publicly.
+Created by Chetan 
