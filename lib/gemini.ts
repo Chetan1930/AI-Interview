@@ -1,6 +1,17 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { InterviewContent, ResumeAnalysisResult, RoleInput, MockInterviewMessage } from './types';
 
+/** Stable model for generateContent; 1.5 short names are often retired from v1beta (404). */
+const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash';
+
+function getGeminiModel(): string {
+  return (
+    process.env.GEMINI_MODEL?.trim() ||
+    process.env.NEXT_PUBLIC_GEMINI_MODEL?.trim() ||
+    DEFAULT_GEMINI_MODEL
+  );
+}
+
 function getClient() {
   const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error('GEMINI_API_KEY is not configured');
@@ -9,7 +20,7 @@ function getClient() {
 
 async function generateJSON<T>(prompt: string): Promise<T> {
   const genAI = getClient();
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const model = genAI.getGenerativeModel({ model: getGeminiModel() });
   const result = await model.generateContent(prompt);
   const text = result.response.text();
   const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
@@ -194,7 +205,7 @@ If this is the start, introduce yourself briefly and ask the first question.
 Return ONLY the question text, no JSON, no extra formatting.`;
 
   const genAI = getClient();
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const model = genAI.getGenerativeModel({ model: getGeminiModel() });
   const result = await model.generateContent(prompt);
   return result.response.text().trim();
 }
