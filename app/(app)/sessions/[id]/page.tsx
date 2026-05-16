@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
-  ArrowLeft, LoaderCircle, Brain, FileText, MessageSquare, Trash2,
-  Sparkles, BookOpen, Briefcase, Clock
+  ArrowLeft, LoaderCircle, Brain, FileText, Trash2,
+  Sparkles, BookOpen, Clock, MessageSquare, Bot
 } from 'lucide-react';
+import { ChatMessage } from '@/components/chat/chat-message';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -63,11 +64,11 @@ export default function SessionDetailPage({ params }: { params: { id: string } }
       case 'jd':
         return { icon: BookOpen, label: 'From Job Description', color: 'text-blue-500', bg: 'bg-blue-500/10' };
       case 'role':
-        return { icon: Briefcase, label: 'From Role', color: 'text-amber-500', bg: 'bg-amber-500/10' };
-      case 'mock-interview':
-        return { icon: MessageSquare, label: 'Mock Interview', color: 'text-purple-500', bg: 'bg-purple-500/10' };
+        return { icon: BookOpen, label: 'From Role', color: 'text-amber-500', bg: 'bg-amber-500/10' };
       case 'resume-analysis':
         return { icon: FileText, label: 'Resume Analysis', color: 'text-emerald-500', bg: 'bg-emerald-500/10' };
+      case 'chat-import':
+        return { icon: MessageSquare, label: 'Chat Import', color: 'text-purple-500', bg: 'bg-purple-500/10' };
       default:
         return { icon: Brain, label: 'Session', color: 'text-primary', bg: 'bg-primary/10' };
     }
@@ -87,26 +88,14 @@ export default function SessionDetailPage({ params }: { params: { id: string } }
                 <Sparkles className="h-3.5 w-3.5 mr-1.5" /> New Prep from JD
               </Link>
             </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={`/mock-interview`}>
-                <MessageSquare className="h-3.5 w-3.5 mr-1.5" /> Mock Interview
-              </Link>
-            </Button>
           </div>
         );
       case 'role':
-        const role = input.role || '';
-        const tech = (input.techStack || []).join(', ');
         return (
           <div className="flex flex-wrap gap-2">
             <Button asChild size="sm" variant="default">
-              <Link href={`/general-prep`}>
-                <Sparkles className="h-3.5 w-3.5 mr-1.5" /> New Prep for {role || 'Role'}
-              </Link>
-            </Button>
-            <Button asChild size="sm" variant="outline">
-              <Link href={`/mock-interview`}>
-                <MessageSquare className="h-3.5 w-3.5 mr-1.5" /> Mock Interview as {role || 'Role'}
+              <Link href={`/interview-prep?tab=role`}>
+                <Sparkles className="h-3.5 w-3.5 mr-1.5" /> New Prep from Role
               </Link>
             </Button>
           </div>
@@ -121,12 +110,12 @@ export default function SessionDetailPage({ params }: { params: { id: string } }
             </Button>
           </div>
         );
-      case 'mock-interview':
+      case 'chat-import':
         return (
           <div className="flex flex-wrap gap-2">
             <Button asChild size="sm" variant="default">
-              <Link href="/mock-interview">
-                <MessageSquare className="h-3.5 w-3.5 mr-1.5" /> New Mock Interview
+              <Link href="/chat-import">
+                <MessageSquare className="h-3.5 w-3.5 mr-1.5" /> Import New Chat
               </Link>
             </Button>
           </div>
@@ -233,7 +222,23 @@ export default function SessionDetailPage({ params }: { params: { id: string } }
       </div>
 
       {/* Session content */}
-      {session.sessionType === 'resume-analysis' && session.generatedContent ? (
+      {session.sessionType === 'chat-import' && session.generatedContent?.messages ? (
+        <div className="max-w-3xl mx-auto space-y-6">
+          {/* Provider badge */}
+          {session.generatedContent.provider && (
+            <div className="flex items-center justify-center">
+              <Badge variant="secondary" className="gap-1.5 px-3 py-1">
+                <Bot className="h-3.5 w-3.5" />
+                {session.generatedContent.provider}
+              </Badge>
+            </div>
+          )}
+          {/* Messages */}
+          {session.generatedContent.messages.map((msg: any, i: number) => (
+            <ChatMessage key={i} message={msg} index={i} />
+          ))}
+        </div>
+      ) : session.sessionType === 'resume-analysis' && session.generatedContent ? (
         <AnalysisResults result={session.generatedContent as ResumeAnalysisResult} />
       ) : session.generatedContent ? (
         <InterviewResults content={session.generatedContent as InterviewContent} sessionTitle={session.title} />
@@ -249,9 +254,7 @@ export default function SessionDetailPage({ params }: { params: { id: string } }
           <div>
             <p className="font-medium">No generated content</p>
             <p className="text-sm text-muted-foreground mt-1 max-w-xs mx-auto">
-              {session.sessionType === 'mock-interview'
-                ? 'This mock interview session was saved but the conversation transcript is not available for replay.'
-                : 'This session does not have any generated content to display.'}
+              This session does not have any generated content to display.
             </p>
           </div>
           {getContextualActions()}

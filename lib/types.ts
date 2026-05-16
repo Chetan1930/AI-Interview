@@ -47,18 +47,6 @@ export interface InterviewSession {
   updated_at: string;
 }
 
-export interface MockInterviewMessage {
-  role: 'interviewer' | 'candidate';
-  content: string;
-  evaluation?: {
-    correctness: number;
-    confidence: number;
-    missingPoints: string[];
-    suggestions: string[];
-  };
-  timestamp: string;
-}
-
 export interface ResumeAnalysis {
   id: string;
   resume_text: string;

@@ -10,9 +10,8 @@ import { useAppStore } from '@/store/appStore';
 const pageTitles: Record<string, string> = {
   '/dashboard': 'Dashboard',
   '/interview-prep': 'Interview Preparation',
-  '/mock-interview': 'Mock Interview',
+  '/chat-import': 'Chat Import',
   '/resume-analyzer': 'Resume Analyzer',
-  '/general-prep': 'General Preparation',
   '/sessions': 'All Sessions',
   '/settings': 'Settings',
 };

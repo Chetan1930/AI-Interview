@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
-  Search, BookOpen, FileText, MessageSquare, Briefcase,
+  Search, BookOpen, FileText, MessageSquare,
   LoaderCircle, Trash2, Clock, ChevronRight, X
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -16,17 +16,17 @@ import { toast } from 'sonner';
 
 const sessionTypeConfig: Record<string, { label: string; icon: React.ElementType; color: string; bg: string }> = {
   'jd': { label: 'From JD', icon: BookOpen, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-  'role': { label: 'From Role', icon: Briefcase, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-  'mock-interview': { label: 'Mock Interview', icon: MessageSquare, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+  'role': { label: 'From Role', icon: BookOpen, color: 'text-amber-500', bg: 'bg-amber-500/10' },
   'resume-analysis': { label: 'Resume Analysis', icon: FileText, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+  'chat-import': { label: 'Chat Import', icon: MessageSquare, color: 'text-purple-500', bg: 'bg-purple-500/10' },
 };
 
 const typeFilters = [
   { value: '', label: 'All' },
   { value: 'jd', label: 'JD' },
   { value: 'role', label: 'Role' },
-  { value: 'mock-interview', label: 'Mock' },
   { value: 'resume-analysis', label: 'Resume' },
+  { value: 'chat-import', label: 'Chat' },
 ];
 
 export default function SessionsPage() {

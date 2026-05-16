@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
-  BookOpen, FileText, Briefcase, ArrowRight, Clock, Brain,
+  BookOpen, FileText, ArrowRight, Clock, Brain,
   TrendingUp, Zap, ChevronRight, LoaderCircle
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,20 +22,20 @@ const quickActions = [
     bg: 'bg-blue-500/10',
   },
   {
+    title: 'Interview from Role',
+    description: 'Prepare by role and tech stack without a JD',
+    href: '/interview-prep?tab=role',
+    icon: BookOpen,
+    color: 'text-amber-500',
+    bg: 'bg-amber-500/10',
+  },
+  {
     title: 'Resume Analyzer',
     description: 'Upload resume and get ATS score + improvements',
     href: '/resume-analyzer',
     icon: FileText,
     color: 'text-emerald-500',
     bg: 'bg-emerald-500/10',
-  },
-  {
-    title: 'General Prep',
-    description: 'Prepare by role and tech stack without a JD',
-    href: '/general-prep',
-    icon: Briefcase,
-    color: 'text-amber-500',
-    bg: 'bg-amber-500/10',
   },
 ];
 
@@ -117,7 +117,7 @@ export default function DashboardPage() {
               Ace your next interview
             </h2>
             <p className="text-muted-foreground text-sm max-w-md">
-              Get AI-generated questions, resume analysis, and mock interviews tailored to your role and tech stack.
+              Get AI-generated interview questions and resume analysis tailored to your role and tech stack.
             </p>
           </div>
           <Zap className="w-10 h-10 sm:w-16 sm:h-16 text-primary/20 flex-shrink-0" />

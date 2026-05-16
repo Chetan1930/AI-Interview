@@ -1,13 +1,11 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
-import type { InterviewContent, ResumeAnalysisResult, MockInterviewMessage } from './types';
+import type { InterviewContent, ResumeAnalysisResult } from './types';
 import {
   buildInterviewFromJDPrompt,
   buildInterviewFromRolePrompt,
   buildResumeAnalysisPrompt,
-  buildMockEvaluationPrompt,
-  buildNextMockQuestionPrompt,
 } from './prompts';
 import type { AIProvider } from './provider-types';
 import { connectDB } from './mongodb';
@@ -191,24 +189,3 @@ export async function analyzeResumeVsJD(
   const prompt = buildResumeAnalysisPrompt(resumeText, jobDescription);
   return generateJSON<ResumeAnalysisResult>(prompt, config);
 }
-
-export async function evaluateMockAnswer(
-  question: string,
-  answer: string,
-  context: string,
-  config: ProviderConfig
-): Promise<NonNullable<MockInterviewMessage['evaluation']>> {
-  const prompt = buildMockEvaluationPrompt(question, answer, context);
-  return generateJSON<NonNullable<MockInterviewMessage['evaluation']>>(prompt, config);
-}
-
-export async function getNextMockQuestion(
-  sessionContext: string,
-  previousMessages: MockInterviewMessage[],
-  config: ProviderConfig
-): Promise<string> {
-  const prompt = buildNextMockQuestionPrompt(sessionContext, previousMessages);
-  return generateText(prompt, config);
-}
-
-

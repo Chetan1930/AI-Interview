@@ -1,4 +1,4 @@
-import type { RoleInput, MockInterviewMessage } from './types';
+import type { RoleInput } from './types';
 
 export function buildInterviewFromJDPrompt(jobDescription: string): string {
   return `You are an expert technical interviewer. Analyze this job description and generate comprehensive interview preparation content.
@@ -124,45 +124,4 @@ ATS score should be 0-100 based on keyword match, skill alignment, experience ma
 Provide at least 3-5 items in each array. Be specific and actionable.
 
 Return ONLY valid JSON, no markdown.`;
-}
-
-export function buildMockEvaluationPrompt(
-  question: string,
-  answer: string,
-  context: string
-): string {
-  return `You are a technical interviewer evaluating a candidate's answer.
-
-Question: ${question}
-Context: ${context}
-Candidate's Answer: ${answer}
-
-Return a JSON object:
-{
-  "correctness": 85,
-  "confidence": 70,
-  "missingPoints": ["point1", "point2"],
-  "suggestions": ["suggestion1", "suggestion2"]
-}
-
-Return ONLY valid JSON.`;
-}
-
-export function buildNextMockQuestionPrompt(
-  sessionContext: string,
-  previousMessages: MockInterviewMessage[]
-): string {
-  const conversationHistory = previousMessages
-    .map(m => `${m.role === 'interviewer' ? 'Interviewer' : 'Candidate'}: ${m.content}`)
-    .join('\n');
-
-  return `You are a technical interviewer conducting a mock interview.
-
-Context: ${sessionContext}
-Conversation so far:
-${conversationHistory}
-
-Ask the next interview question. Make it feel natural and conversational.
-If this is the start, introduce yourself briefly and ask the first question.
-Return ONLY the question text, no JSON, no extra formatting.`;
 }

@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const validTypes = ['jd', 'role', 'mock-interview', 'resume-analysis'];
+    const validTypes = ['jd', 'role', 'resume-analysis', 'chat-import'];
     if (!validTypes.includes(sessionType)) {
       return NextResponse.json(
         { error: 'Invalid session type' },
