@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, Square, LoaderCircle, Sparkles } from 'lucide-react';
+import { Mic, LoaderCircle, Sparkles } from 'lucide-react';
 
 // ─── Types ─────────────────────────────────────────────────────────
 
@@ -31,6 +31,7 @@ export function VoiceRecorder({ onTranscript, disabled }: VoiceRecorderProps) {
   const [state, setState] = useState<'idle' | 'recording' | 'transcribing'>('idle');
   const [interimText, setInterimText] = useState('');
   const recognitionRef = useRef<any>(null);
+  const finalizedRef = useRef('');
 
   const isSupported = SpeechRecognitionAPI != null;
 
@@ -61,17 +62,9 @@ export function VoiceRecorder({ onTranscript, disabled }: VoiceRecorderProps) {
         }
       }
       if (final) {
-        setInterimText((prev) => prev + final);
+        finalizedRef.current += final;
       }
-      if (interim) {
-        // Show live interim text by replacing the previous interim
-        setInterimText((prev) => {
-          // Remove the last interim segment (anything after the last sentence end)
-          const lastPeriod = prev.lastIndexOf('.');
-          const base = lastPeriod >= 0 ? prev.slice(0, lastPeriod + 1) + ' ' : '';
-          return base + interim;
-        });
-      }
+      setInterimText(finalizedRef.current + (interim ? ' ' + interim : ''));
     };
 
     recognition.onerror = (event: any) => {
@@ -97,16 +90,19 @@ export function VoiceRecorder({ onTranscript, disabled }: VoiceRecorderProps) {
       stopRecording();
       // Wait a moment for final results then submit
       setTimeout(() => {
-        if (interimText.trim()) {
-          onTranscript(interimText.trim());
+        const text = finalizedRef.current;
+        finalizedRef.current = '';
+        if (text.trim()) {
+          onTranscript(text.trim());
         }
         setInterimText('');
         setState('idle');
       }, 500);
     } else if (state === 'idle') {
+      finalizedRef.current = '';
       startRecording();
     }
-  }, [state, interimText, onTranscript, startRecording, stopRecording]);
+  }, [state, onTranscript, startRecording, stopRecording]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -196,8 +192,10 @@ export function VoiceRecorder({ onTranscript, disabled }: VoiceRecorderProps) {
 
 export function SpeakButton({ text, className }: { text: string; className?: string }) {
   const [speaking, setSpeaking] = useState(false);
+  const isSupported = typeof window !== 'undefined' && 'speechSynthesis' in window;
 
   const handleSpeak = useCallback(() => {
+    if (!isSupported) return;
     if (speaking) {
       window.speechSynthesis.cancel();
       setSpeaking(false);
@@ -224,14 +222,16 @@ export function SpeakButton({ text, className }: { text: string; className?: str
 
     setSpeaking(true);
     window.speechSynthesis.speak(utterance);
-  }, [text, speaking]);
+  }, [text, speaking, isSupported]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      window.speechSynthesis.cancel();
+      if (isSupported) {
+        window.speechSynthesis.cancel();
+      }
     };
-  }, []);
+  }, [isSupported]);
 
   return (
     <button

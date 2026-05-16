@@ -297,16 +297,14 @@ export default function ChatImportPage() {
 
   // ── Voice Send ──
 
-  const handleVoiceSend = () => {
+  const handleVoiceSend = useCallback(() => {
     if (!voiceText.trim() || !parsed) return;
 
-    // Add user message to the conversation
     const newMsg: ChatMessageData = {
       role: 'user',
       content: voiceText.trim(),
     };
 
-    // Create a new ParseResult with the added message
     setParsed({
       ...parsed,
       messages: [...parsed.messages, newMsg],
@@ -314,24 +312,10 @@ export default function ChatImportPage() {
 
     setVoiceText('');
 
-    // Auto-scroll to bottom
     setTimeout(() => {
       chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, 50);
-  };
-
-  // ── Keyboard shortcut: Ctrl+Enter for voice send ──
-
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-      handleVoiceSend();
-    }
-  }, [handleVoiceSend]);
-
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyDown]);
+  }, [voiceText, parsed]);
 
   // ── Conversation View ──
 
