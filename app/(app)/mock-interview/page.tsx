@@ -51,6 +51,22 @@ export default function MockInterviewPage() {
     setLoading(true);
     setSessionStarted(true);
 
+    // Save session to MongoDB
+    try {
+      await fetch('/api/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: `Mock Interview — ${role}`,
+          sessionType: 'mock-interview',
+          inputData: { role, experience, techStack },
+        }),
+      });
+      toast.success('Mock interview session created');
+    } catch (e) {
+      console.error('Failed to save mock interview session:', e);
+    }
+
     try {
       const res = await fetch('/api/mock-interview', {
         method: 'POST',

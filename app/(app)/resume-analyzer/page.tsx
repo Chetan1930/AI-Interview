@@ -39,6 +39,7 @@ export default function ResumeAnalyzerPage() {
       if (!res.ok) throw new Error(data.error);
       setResult(data.result);
       saveAnalysis(data.result);
+      toast.success('Analysis saved to your sessions');
     } catch (e: any) {
       toast.error(e.message || 'Failed to analyze resume. Check your Gemini API key.');
     } finally {
@@ -46,7 +47,27 @@ export default function ResumeAnalyzerPage() {
     }
   };
 
-  const saveAnalysis = (analysisResult: ResumeAnalysisResult) => {
+  const saveAnalysis = async (analysisResult: ResumeAnalysisResult) => {
+    try {
+      await fetch('/api/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: `Resume Analysis - ${analysisResult.atsScore}%`,
+          sessionType: 'resume-analysis',
+          inputData: {
+            resumeText: resumeText.slice(0, 5000),
+            jobDescription: jd.slice(0, 5000),
+          },
+          generatedContent: {
+            ...analysisResult,
+          },
+        }),
+      });
+    } catch (e) {
+      console.error('Failed to save analysis to MongoDB:', e);
+    }
+
     addAnalysis({
       id: crypto.randomUUID(),
       resume_text: resumeText.slice(0, 5000),

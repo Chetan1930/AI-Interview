@@ -51,6 +51,7 @@ export function ResumeUpload({ onTextExtracted }: ResumeUploadProps) {
       setDone(false);
       await extractText(accepted[0]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({

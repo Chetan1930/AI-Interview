@@ -1,34 +1,7 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import type { InterviewContent, ResumeAnalysisResult, RoleInput, MockInterviewMessage } from './types';
+import type { RoleInput, MockInterviewMessage } from './types';
 
-/** Stable model for generateContent; 1.5 short names are often retired from v1beta (404). */
-const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash';
-
-function getGeminiModel(): string {
-  return (
-    process.env.GEMINI_MODEL?.trim() ||
-    process.env.NEXT_PUBLIC_GEMINI_MODEL?.trim() ||
-    DEFAULT_GEMINI_MODEL
-  );
-}
-
-function getClient() {
-  const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
-  if (!apiKey) throw new Error('GEMINI_API_KEY is not configured');
-  return new GoogleGenerativeAI(apiKey);
-}
-
-async function generateJSON<T>(prompt: string): Promise<T> {
-  const genAI = getClient();
-  const model = genAI.getGenerativeModel({ model: getGeminiModel() });
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
-  const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-  return JSON.parse(cleaned) as T;
-}
-
-export async function generateInterviewFromJD(jobDescription: string): Promise<InterviewContent> {
-  const prompt = `You are an expert technical interviewer. Analyze this job description and generate comprehensive interview preparation content.
+export function buildInterviewFromJDPrompt(jobDescription: string): string {
+  return `You are an expert technical interviewer. Analyze this job description and generate comprehensive interview preparation content.
 
 Job Description:
 ${jobDescription}
@@ -68,12 +41,10 @@ Generate:
 - 10-12 revision topics
 
 Return ONLY the JSON, no markdown.`;
-
-  return generateJSON<InterviewContent>(prompt);
 }
 
-export async function generateInterviewFromRole(input: RoleInput): Promise<InterviewContent> {
-  const prompt = `You are an expert technical interviewer. Generate comprehensive interview preparation content for this profile.
+export function buildInterviewFromRolePrompt(input: RoleInput): string {
+  return `You are an expert technical interviewer. Generate comprehensive interview preparation content for this profile.
 
 Role: ${input.role}
 Experience Level: ${input.experienceLevel}
@@ -117,15 +88,10 @@ Generate:
 - 10-12 revision topics
 
 Return ONLY valid JSON, no markdown.`;
-
-  return generateJSON<InterviewContent>(prompt);
 }
 
-export async function analyzeResumeVsJD(
-  resumeText: string,
-  jobDescription: string
-): Promise<ResumeAnalysisResult> {
-  const prompt = `You are an expert ATS system and technical recruiter. Analyze this resume against the job description.
+export function buildResumeAnalysisPrompt(resumeText: string, jobDescription: string): string {
+  return `You are an expert ATS system and technical recruiter. Analyze this resume against the job description.
 
 RESUME:
 ${resumeText}
@@ -158,16 +124,14 @@ ATS score should be 0-100 based on keyword match, skill alignment, experience ma
 Provide at least 3-5 items in each array. Be specific and actionable.
 
 Return ONLY valid JSON, no markdown.`;
-
-  return generateJSON<ResumeAnalysisResult>(prompt);
 }
 
-export async function evaluateMockAnswer(
+export function buildMockEvaluationPrompt(
   question: string,
   answer: string,
   context: string
-): Promise<NonNullable<MockInterviewMessage['evaluation']>> {
-  const prompt = `You are a technical interviewer evaluating a candidate's answer.
+): string {
+  return `You are a technical interviewer evaluating a candidate's answer.
 
 Question: ${question}
 Context: ${context}
@@ -182,19 +146,17 @@ Return a JSON object:
 }
 
 Return ONLY valid JSON.`;
-
-  return generateJSON<NonNullable<MockInterviewMessage['evaluation']>>(prompt);
 }
 
-export async function getNextMockQuestion(
+export function buildNextMockQuestionPrompt(
   sessionContext: string,
   previousMessages: MockInterviewMessage[]
-): Promise<string> {
+): string {
   const conversationHistory = previousMessages
     .map(m => `${m.role === 'interviewer' ? 'Interviewer' : 'Candidate'}: ${m.content}`)
     .join('\n');
 
-  const prompt = `You are a technical interviewer conducting a mock interview.
+  return `You are a technical interviewer conducting a mock interview.
 
 Context: ${sessionContext}
 Conversation so far:
@@ -203,9 +165,4 @@ ${conversationHistory}
 Ask the next interview question. Make it feel natural and conversational.
 If this is the start, introduce yourself briefly and ask the first question.
 Return ONLY the question text, no JSON, no extra formatting.`;
-
-  const genAI = getClient();
-  const model = genAI.getGenerativeModel({ model: getGeminiModel() });
-  const result = await model.generateContent(prompt);
-  return result.response.text().trim();
 }

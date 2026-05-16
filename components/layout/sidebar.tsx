@@ -6,10 +6,11 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, FileText, BookOpen, Briefcase, MessageSquare,
-  ChevronLeft, X, Brain, Sparkles
+  ChevronLeft, X, Brain, Sparkles, LogOut, User, Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/store/appStore';
+import { useAuth } from '@/contexts/auth';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
@@ -18,10 +19,12 @@ const navItems = [
   { href: '/mock-interview', label: 'Mock Interview', icon: MessageSquare },
   { href: '/resume-analyzer', label: 'Resume Analyzer', icon: FileText },
   { href: '/general-prep', label: 'General Prep', icon: Briefcase },
+  { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
   const { sidebarOpen, setSidebarOpen } = useAppStore();
   const [isMobile, setIsMobile] = useState(false);
 
@@ -42,6 +45,7 @@ export function Sidebar() {
     if (!isMobile && !sidebarOpen) {
       // Keep closed if user explicitly closed it on desktop
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMobile]);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
@@ -121,6 +125,34 @@ export function Sidebar() {
             );
           })}
         </nav>
+
+        {/* User section at bottom */}
+        {user && (
+          <div className="border-t border-border px-3 py-3 space-y-2">
+            {sidebarOpen && (
+              <div className="flex items-center gap-3 px-2 py-2">
+                <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <User className="w-3.5 h-3.5 text-primary" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium truncate">{user.name}</p>
+                  <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
+                </div>
+              </div>
+            )}
+            <button
+              onClick={logout}
+              className={cn(
+                'flex items-center gap-3 w-full px-2 py-2 rounded-lg text-sm font-medium transition-colors',
+                'text-muted-foreground hover:text-destructive hover:bg-destructive/10',
+                !sidebarOpen && 'justify-center'
+              )}
+            >
+              <LogOut className="w-4 h-4 flex-shrink-0" />
+              {sidebarOpen && <span>Logout</span>}
+            </button>
+          </div>
+        )}
       </aside>
     </>
   );

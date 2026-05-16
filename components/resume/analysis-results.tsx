@@ -93,7 +93,7 @@ export function AnalysisResults({ result }: AnalysisResultsProps) {
               <FileText className="h-4 w-4 text-primary" />
               <h3 className="font-semibold text-sm text-primary">Suggested Resume Summary</h3>
             </div>
-            <p className="text-sm leading-relaxed italic text-muted-foreground">"{result.suggestedSummary}"</p>
+            <p className="text-sm leading-relaxed italic text-muted-foreground">&ldquo;{result.suggestedSummary}&rdquo;</p>
           </CardContent>
         </Card>
       )}

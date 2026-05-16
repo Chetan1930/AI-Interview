@@ -13,6 +13,8 @@ const pageTitles: Record<string, string> = {
   '/mock-interview': 'Mock Interview',
   '/resume-analyzer': 'Resume Analyzer',
   '/general-prep': 'General Preparation',
+  '/sessions': 'All Sessions',
+  '/settings': 'Settings',
 };
 
 export function Header() {

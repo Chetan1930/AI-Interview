@@ -1,20 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { evaluateMockAnswer, getNextMockQuestion } from '@/lib/gemini';
+import { evaluateMockAnswer, getNextMockQuestion, getProviderConfig } from '@/lib/ai';
+import { getTokenFromCookies, verifyToken } from '@/lib/auth';
 import type { MockInterviewMessage } from '@/lib/types';
+
+function getUserId(): string | null {
+  const token = getTokenFromCookies();
+  if (!token) return null;
+  const payload = verifyToken(token);
+  return payload?.userId || null;
+}
 
 export async function POST(req: NextRequest) {
   try {
     const { sessionContext, messages, action, question, answer } = await req.json();
+    const userId = getUserId();
+    const config = await getProviderConfig(userId || undefined);
 
     if (action === 'next') {
-      const nextQuestion = await getNextMockQuestion(sessionContext, messages || []);
+      const nextQuestion = await getNextMockQuestion(sessionContext, messages || [], config);
       return NextResponse.json({ question: nextQuestion });
     }
 
     if (action === 'evaluate') {
       const [evaluation, nextQuestion] = await Promise.all([
-        evaluateMockAnswer(question, answer, sessionContext),
-        getNextMockQuestion(sessionContext, messages || []),
+        evaluateMockAnswer(question, answer, sessionContext, config),
+        getNextMockQuestion(sessionContext, messages || [], config),
       ]);
       return NextResponse.json({ evaluation, nextQuestion });
     }

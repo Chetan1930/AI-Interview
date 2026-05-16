@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { analyzeResumeVsJD } from '@/lib/gemini';
+import { analyzeResumeVsJD, getProviderConfig } from '@/lib/ai';
+import { getTokenFromCookies, verifyToken } from '@/lib/auth';
+
+function getUserId(): string | null {
+  const token = getTokenFromCookies();
+  if (!token) return null;
+  const payload = verifyToken(token);
+  return payload?.userId || null;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,7 +18,9 @@ export async function POST(req: NextRequest) {
     if (!jobDescription?.trim()) {
       return NextResponse.json({ error: 'Job description is required' }, { status: 400 });
     }
-    const result = await analyzeResumeVsJD(resumeText, jobDescription);
+    const userId = getUserId();
+    const config = await getProviderConfig(userId || undefined);
+    const result = await analyzeResumeVsJD(resumeText, jobDescription, config);
     return NextResponse.json({ result });
   } catch (error: any) {
     console.error('Resume analysis error:', error);

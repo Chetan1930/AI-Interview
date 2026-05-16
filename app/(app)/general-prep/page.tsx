@@ -50,7 +50,8 @@ export default function GeneralPrepPage() {
       setContent(data.content);
       const title = `${role} — ${experience} (${techStack.slice(0, 3).join(', ')})`;
       setSessionTitle(title);
-      await saveSession({ session_type: 'role', input_data: { role, experienceLevel: experience, techStack }, title, content: data.content });
+      await saveSessionToMongo({ session_type: 'role', input_data: { role, experienceLevel: experience, techStack }, title, content: data.content });
+      toast.success('Prep material saved to your sessions');
     } catch (e: any) {
       toast.error(e.message || 'Failed to generate. Check your Gemini API key.');
     } finally {
@@ -58,12 +59,27 @@ export default function GeneralPrepPage() {
     }
   };
 
-  const saveSession = (params: {
+  const saveSessionToMongo = async (params: {
     session_type: 'role';
     input_data: object;
     title: string;
     content: InterviewContent;
   }) => {
+    try {
+      await fetch('/api/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: params.title,
+          sessionType: params.session_type,
+          inputData: params.input_data,
+          generatedContent: params.content,
+        }),
+      });
+    } catch (e) {
+      console.error('Failed to save session to MongoDB:', e);
+    }
+
     addSession({
       id: crypto.randomUUID(),
       title: params.title,
