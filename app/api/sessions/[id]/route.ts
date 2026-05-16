@@ -46,6 +46,44 @@ export async function GET(
   }
 }
 
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const userId = await getUserId();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+      return NextResponse.json({ error: 'Invalid session id' }, { status: 400 });
+    }
+
+    await connectDB();
+
+    const body = await req.json();
+
+    const session = await Session.findOneAndUpdate(
+      { _id: params.id, userId },
+      { $set: body },
+      { new: true, runValidators: true }
+    ).lean();
+
+    if (!session) {
+      return NextResponse.json({ error: 'Session not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ session });
+  } catch (error: any) {
+    console.error('Update session error:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to update session' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }

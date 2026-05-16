@@ -1,6 +1,6 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
 
-export type SessionType = 'jd' | 'role' | 'resume-analysis' | 'chat-import';
+export type SessionType = 'jd' | 'role' | 'resume-analysis' | 'chat-import' | 'voice-interview';
 
 export interface ISession extends Document {
   userId: mongoose.Types.ObjectId;
@@ -29,7 +29,7 @@ const sessionSchema = new Schema<ISession>(
     sessionType: {
       type: String,
       required: true,
-      enum: ['jd', 'role', 'resume-analysis', 'chat-import'],
+      enum: ['jd', 'role', 'resume-analysis', 'chat-import', 'voice-interview'],
     },
     inputData: {
       type: Schema.Types.Mixed,

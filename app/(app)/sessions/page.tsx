@@ -19,6 +19,7 @@ const sessionTypeConfig: Record<string, { label: string; icon: React.ElementType
   'role': { label: 'From Role', icon: BookOpen, color: 'text-amber-500', bg: 'bg-amber-500/10' },
   'resume-analysis': { label: 'Resume Analysis', icon: FileText, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
   'chat-import': { label: 'Chat Import', icon: MessageSquare, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+  'voice-interview': { label: 'Voice Interview', icon: MessageSquare, color: 'text-rose-500', bg: 'bg-rose-500/10' },
 };
 
 const typeFilters = [
@@ -27,6 +28,7 @@ const typeFilters = [
   { value: 'role', label: 'Role' },
   { value: 'resume-analysis', label: 'Resume' },
   { value: 'chat-import', label: 'Chat' },
+  { value: 'voice-interview', label: 'Voice' },
 ];
 
 export default function SessionsPage() {

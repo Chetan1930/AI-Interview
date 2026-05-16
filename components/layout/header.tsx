@@ -10,6 +10,7 @@ import { useAppStore } from '@/store/appStore';
 const pageTitles: Record<string, string> = {
   '/dashboard': 'Dashboard',
   '/interview-prep': 'Interview Preparation',
+  '/voice-interview': 'Voice Interview',
   '/chat-import': 'Chat Import',
   '/resume-analyzer': 'Resume Analyzer',
   '/sessions': 'All Sessions',

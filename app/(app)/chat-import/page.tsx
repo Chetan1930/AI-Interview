@@ -317,6 +317,32 @@ export default function ChatImportPage() {
     }, 50);
   }, [voiceText, parsed]);
 
+  // ── Voice Import from Landing ──
+
+  const [landingVoiceText, setLandingVoiceText] = useState('');
+  const [voiceSaving, setVoiceSaving] = useState(false);
+
+  const handleVoiceImport = async () => {
+    if (!landingVoiceText.trim()) return;
+    setVoiceSaving(true);
+
+    const result: ParseResult = {
+      messages: [{ role: 'user', content: landingVoiceText.trim() }],
+      detectedProvider: detectProvider(landingVoiceText),
+    };
+
+    setParsed(result);
+    setVoiceText('');
+
+    const id = await saveChatToSession(result.messages, result.detectedProvider, landingVoiceText, addSession);
+    if (id) setSessionId(id);
+    setVoiceSaving(false);
+    setLandingVoiceText('');
+    refreshRecentImports();
+
+    toast.success(`Voice noted · Started new conversation`);
+  };
+
   // ── Conversation View ──
 
   if (parsed) {
@@ -567,6 +593,91 @@ export default function ChatImportPage() {
               </motion.div>
             )}
           </AnimatePresence>
+        </motion.div>
+      </div>
+
+      {/* ── Voice Recording Section ── */}
+      <div className="px-4 sm:px-6 pb-2 relative z-[1]">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex-1 h-px bg-border/60" />
+          <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">or use your voice</span>
+          <div className="flex-1 h-px bg-border/60" />
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.4 }}
+          className="max-w-lg mx-auto"
+        >
+          <div className="rounded-2xl border-2 border-dashed border-border/50 bg-card/30 p-6 text-center space-y-4">
+            <div className="flex flex-col items-center gap-2">
+              <VoiceRecorder
+                onTranscript={(text) => {
+                  setLandingVoiceText(text);
+                }}
+              />
+              <span className="text-[11px] font-medium text-muted-foreground/70">
+                Tap to speak
+              </span>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-semibold">Start Speaking</h3>
+              <p className="text-xs text-muted-foreground mt-1">
+                Click the mic and speak your interview answer or question.
+                It&apos;ll be transcribed and saved as a chat.
+              </p>
+            </div>
+
+            {landingVoiceText && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="space-y-3 overflow-hidden"
+              >
+                <div className="relative">
+                  <textarea
+                    value={landingVoiceText}
+                    onChange={(e) => setLandingVoiceText(e.target.value)}
+                    className="w-full min-h-[80px] p-3 text-sm rounded-xl border border-border/60 bg-card shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                    placeholder="Your speech will appear here..."
+                  />
+                  {landingVoiceText && (
+                    <button
+                      onClick={() => setLandingVoiceText('')}
+                      className="absolute top-2 right-2 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-[11px] text-muted-foreground">
+                    {landingVoiceText.length} characters
+                  </p>
+                  <Button
+                    onClick={handleVoiceImport}
+                    disabled={voiceSaving || !landingVoiceText.trim()}
+                    size="sm"
+                    className="rounded-lg"
+                  >
+                    {voiceSaving ? (
+                      <span className="flex items-center gap-1.5">
+                        <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+                        Saving...
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1.5">
+                        <MessageSquare className="h-3.5 w-3.5" />
+                        Create Chat
+                      </span>
+                    )}
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </div>
         </motion.div>
       </div>
 

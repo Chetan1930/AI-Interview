@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, FileText, BookOpen,
-  X, Brain, Sparkles, LogOut, User, Settings, MessageSquare
+  X, Brain, Sparkles, LogOut, User, Settings, MessageSquare, Mic
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/store/appStore';
@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/interview-prep', label: 'Interview Prep', icon: BookOpen },
+  { href: '/voice-interview', label: 'Voice Interview', icon: Mic },
   { href: '/chat-import', label: 'Chat Import', icon: MessageSquare },
   { href: '/resume-analyzer', label: 'Resume Analyzer', icon: FileText },
   { href: '/settings', label: 'Settings', icon: Settings },
