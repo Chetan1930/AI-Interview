@@ -9,6 +9,9 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'PrepAI - Interview Preparation',
   description: 'AI-powered interview preparation, resume analysis, and mock interviews',
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({
