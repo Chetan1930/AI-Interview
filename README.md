@@ -85,7 +85,10 @@ npm run build      # create a production build
 npm run start      # run the production server
 npm run lint       # run lint checks
 npm run typecheck  # run TypeScript checks
+npm run check      # lint, typecheck, and production build (CI uses this)
 ```
+
+CI runs `npm run check` on pushes and pull requests to `main`/`master` (see `.github/workflows/ci.yml`).
 
 ## Usage
 
