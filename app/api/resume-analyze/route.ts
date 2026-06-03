@@ -1,13 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeResumeVsJD, getProviderConfig } from '@/lib/ai';
-import { getTokenFromCookies, verifyToken } from '@/lib/auth';
-
-function getUserId(): string | null {
-  const token = getTokenFromCookies();
-  if (!token) return null;
-  const payload = verifyToken(token);
-  return payload?.userId || null;
-}
+import { getAuthenticatedUserId } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,7 +11,7 @@ export async function POST(req: NextRequest) {
     if (!jobDescription?.trim()) {
       return NextResponse.json({ error: 'Job description is required' }, { status: 400 });
     }
-    const userId = getUserId();
+    const userId = getAuthenticatedUserId();
     const config = await getProviderConfig(userId || undefined);
     const result = await analyzeResumeVsJD(resumeText, jobDescription, config);
     return NextResponse.json({ result });

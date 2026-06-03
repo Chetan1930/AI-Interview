@@ -1,22 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import { ApiKey } from '@/lib/models/ApiKey';
-import { getTokenFromCookies, verifyToken } from '@/lib/auth';
+import { getAuthenticatedUserId } from '@/lib/auth';
 import { encrypt } from '@/lib/encryption';
 import { VALID_PROVIDERS } from '@/lib/provider-types';
 import type { AIProvider } from '@/lib/provider-types';
 
-async function getUserId(): Promise<string | null> {
-  const token = getTokenFromCookies();
-  if (!token) return null;
-  const payload = verifyToken(token);
-  return payload?.userId || null;
-}
-
 // GET /api/keys — List user's API keys (masked)
 export async function GET() {
   try {
-    const userId = await getUserId();
+    const userId = getAuthenticatedUserId();
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -47,7 +40,7 @@ export async function GET() {
 // POST /api/keys — Add a new API key
 export async function POST(req: NextRequest) {
   try {
-    const userId = await getUserId();
+    const userId = getAuthenticatedUserId();
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -116,7 +109,7 @@ export async function POST(req: NextRequest) {
 // DELETE /api/keys — Delete a key by id or provider
 export async function DELETE(req: NextRequest) {
   try {
-    const userId = await getUserId();
+    const userId = getAuthenticatedUserId();
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -145,7 +138,7 @@ export async function DELETE(req: NextRequest) {
 // PUT /api/keys — Update a key (set default, update label)
 export async function PUT(req: NextRequest) {
   try {
-    const userId = await getUserId();
+    const userId = getAuthenticatedUserId();
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

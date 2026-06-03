@@ -1,22 +1,19 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import { User } from '@/lib/models/User';
-import { getTokenFromCookies, verifyToken } from '@/lib/auth';
+import { getAuthenticatedUserId } from '@/lib/auth';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const token = getTokenFromCookies();
-    if (!token) {
-      return NextResponse.json({ user: null });
-    }
-
-    const payload = verifyToken(token);
-    if (!payload) {
+    const userId = getAuthenticatedUserId();
+    if (!userId) {
       return NextResponse.json({ user: null });
     }
 
     await connectDB();
-    const user = await User.findById(payload.userId);
+    const user = await User.findById(userId);
     if (!user) {
       return NextResponse.json({ user: null });
     }

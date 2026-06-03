@@ -1,22 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import { Session } from '@/lib/models/Session';
-import { getTokenFromCookies, verifyToken } from '@/lib/auth';
+import { getAuthenticatedUserId } from '@/lib/auth';
 import mongoose from 'mongoose';
-
-async function getUserId(): Promise<string | null> {
-  const token = getTokenFromCookies();
-  if (!token) return null;
-  const payload = verifyToken(token);
-  return payload?.userId || null;
-}
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const userId = await getUserId();
+    const userId = getAuthenticatedUserId();
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -51,7 +44,7 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const userId = await getUserId();
+    const userId = getAuthenticatedUserId();
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -89,7 +82,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const userId = await getUserId();
+    const userId = getAuthenticatedUserId();
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

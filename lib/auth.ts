@@ -27,6 +27,14 @@ export function getTokenFromCookies(): string | null {
   return cookieStore.get(TOKEN_NAME)?.value || null;
 }
 
+/** Returns the authenticated user's ID from the session cookie, or null if unauthenticated. */
+export function getAuthenticatedUserId(): string | null {
+  const token = getTokenFromCookies();
+  if (!token) return null;
+  const payload = verifyToken(token);
+  return payload?.userId || null;
+}
+
 export function setAuthCookie(token: string): void {
   const cookieStore = cookies();
   cookieStore.set(TOKEN_NAME, token, {
